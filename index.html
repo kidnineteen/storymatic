@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You've Won!</title>
+    <!-- Google Fonts for a celebratory, bold look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #1a1a2e; /* Deep Royal Blue */
+            --main-color: #ffd700; /* Gold */
+            --secondary-color: #ffffff; /* White */
+            --text-color: #ffffff;
+            --prize-card-bg: #1f4068; /* Darker Blue */
+            --accent-color: #e94560; /* Vibrant Red */
+            --shadow: 0 0 30px var(--main-color), 0 0 60px var(--accent-color);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            user-select: none;
+            cursor: none; /* Hide default cursor */
+            perspective: 1000px; /* For 3D CSS effects */
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            display: block;
+        }
+
+        .ui-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            max-width: 900px;
+            width: 90%;
+            pointer-events: auto;
+            opacity: 0;
+            transform-style: preserve-3d;
+            transform: translateZ(100px); /* Move UI closer to viewer */
+            gap: 2rem;
+        }
+
+        .prize-card {
+            background: linear-gradient(145deg, var(--prize-card-bg), #2a5a8f);
+            border-radius: 20px;
+            border: 5px solid var(--main-color);
+            box-shadow: var(--shadow);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            transform: rotateX(5deg);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .prize-card:hover {
+            transform: rotateX(0deg) scale(1.02);
+        }
+
+        .headline {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3.5rem, 8vw, 6.5rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: var(--main-color);
+            margin: 0;
+            text-shadow: 0 0 15px var(--main-color), 0 0 30px var(--accent-color);
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); text-shadow: 0 0 15px var(--main-color); }
+            50% { transform: scale(1.02); text-shadow: 0 0 25px var(--main-color), 0 0 50px var(--accent-color); }
+            100% { transform: scale(1); text-shadow: 0 0 15px var(--main-color); }
+        }
+
+        .sub-headline {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            font-weight: 700;
+            margin: 1rem 0 2rem;
+            color: var(--secondary-color);
+            text-shadow: 0 0 5px var(--secondary-color);
+        }
+
+        .description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            color: var(--secondary-color);
+            min-height: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: linear-gradient(90deg, var(--main-color), var(--accent-color));
+            border-radius: 50px;
+            color: var(--dark-bg);
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--main-color);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid var(--main-color);
+        }
+
+        .action-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px var(--main-color), 0 0 60px var(--accent-color);
+        }
+
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, var(--prize-card-bg), #2a5a8f);
+            border-radius: 15px;
+            border: 3px solid var(--main-color);
+            box-shadow: 0 0 20px var(--main-color);
+            padding: 3rem;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease;
+            max-width: 500px;
+            line-height: 1.4;
+        }
+        .message-box.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .contact-container {
+            position: fixed;
+            left: 50%;
+            bottom: 10px;
+            transform: translateX(-50%);
+            z-index: 100;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contact-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--main-color), var(--accent-color));
+            border: none;
+            box-shadow: 0 0 15px var(--main-color), 0 0 30px var(--accent-color);
+            cursor: pointer;
+            position: relative;
+            z-index: 101;
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .contact-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--main-color), 0 0 40px var(--accent-color);
+        }
+
+        .contact-sidebar {
+            background: rgba(31, 64, 104, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--main-color);
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            padding: 1rem;
+            position: absolute;
+            bottom: -100px;
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .contact-container:hover .contact-sidebar {
+            bottom: 70px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .cursor-trail {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--main-color);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            box-shadow: 0 0 10px var(--main-color), 0 0 20px var(--accent-color);
+            animation: fade-out 1s forwards;
+            opacity: 0;
+        }
+
+        @keyframes fade-out {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- The canvas for the Three.js 3D background -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- The main UI content for the prize announcement -->
+    <div class="ui-container">
+        <div class="prize-card">
+            <h1 class="headline">CONGRATULATIONS!</h1>
+            <p class="sub-headline">You are a Grand Prize Winner!</p>
+            <p class="description" id="dynamic-message">Prepare for an exciting announcement...</p>
+            <div class="button-group">
+                <a href="#" class="action-button" id="call-to-action">
+                    <span>REVEAL PRIZE</span>
+                </a>
+                <a href="#" class="action-button" id="eternal-vows">
+                    <span>YOUR SUCCESS</span>
+                </a>
+                <a href="#" class="action-button" id="our-journey">
+                    <span>SHARE THE WIN</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message boxes for user feedback -->
+    <div class="message-box" id="message-box-1">
+        <p>You have won the Grand Prize! An unforgettable experience awaits you!</p>
+    </div>
+    <div class="message-box" id="message-box-2">
+        <p>Your hard work and dedication have paid off. This victory is a testament to your success!</p>
+    </div>
+    <div class="message-box" id="message-box-3">
+        <p>Celebrate your win! Share this amazing news with your friends and family!</p>
+    </div>
+
+    <!-- Contact button with sliding sidebar -->
+    <div class="contact-container">
+        <a href="mailto:your-email@example.com" class="contact-button" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail">
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+        </a>
+        <div class="contact-sidebar">
+            <p>Contact Directly!</p>
+        </div>
+    </div>
+
+
+    <!-- Libraries from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+
+    <script>
+        window.onload = function() {
+            // --- Custom Cursor with Trails ---
+            document.addEventListener('mousemove', (e) => {
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                trail.style.left = `${e.clientX}px`;
+                trail.style.top = `${e.clientY}px`;
+                document.body.appendChild(trail);
+                gsap.to(trail, {
+                    scale: 0.5,
+                    opacity: 0,
+                    duration: 1,
+                    onComplete: () => trail.remove()
+                });
+            });
+
+            // --- Three.js Scene Setup ---
+            const canvas = document.getElementById('three-canvas');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            camera.position.z = 100;
+
+            // --- Particle Systems for a celebratory confetti effect ---
+            function createParticleSystem(count, spread, size, colors, speed) {
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(count * 3);
+                const sizes = new Float32Array(count);
+                const particleColors = new Float32Array(count * 3);
+
+                for (let i = 0; i < count; i++) {
+                    positions[i * 3 + 0] = (Math.random() - 0.5) * spread;
+                    positions[i * 3 + 1] = (Math.random() - 0.5) * spread;
+                    positions[i * 3 + 2] = (Math.random() - 0.5) * spread;
+                    sizes[i] = Math.random() * size + 0.5;
+                    
+                    const color = new THREE.Color(colors[Math.floor(Math.random() * colors.length)]);
+                    particleColors[i * 3] = color.r;
+                    particleColors[i * 3 + 1] = color.g;
+                    particleColors[i * 3 + 2] = color.b;
+                }
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+                geometry.setAttribute('customColor', new THREE.BufferAttribute(particleColors, 3));
+
+                const material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        color: { value: new THREE.Color(0xffffff) }
+                    },
+                    vertexShader: `
+                        attribute float size;
+                        attribute vec3 customColor;
+                        varying vec3 vColor;
+                        void main() {
+                            vColor = customColor;
+                            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+                            gl_PointSize = size * ( 300.0 / -mvPosition.z );
+                            gl_Position = projectionMatrix * mvPosition;
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform vec3 color;
+                        varying vec3 vColor;
+                        void main() {
+                            vec2 uv = gl_PointCoord - vec2(0.5);
+                            float d = length(uv);
+                            if (d > 0.5) discard;
+                            gl_FragColor = vec4( vColor, 1.0 - d * 2.0 );
+                        }
+                    `,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true
+                });
+
+                const particles = new THREE.Points(geometry, material);
+                particles.speed = speed;
+                return particles;
+            }
+
+            const confettiColors = [0xFFD700, 0x8A2BE2, 0x00BFFF, 0xFF69B4, 0x32CD32]; // Gold, blue, pink, green, etc.
+            const confetti1 = createParticleSystem(10000, 2000, 4, confettiColors, 0.0001); 
+            const confetti2 = createParticleSystem(5000, 1000, 6, confettiColors, 0.0005);
+            const confetti3 = createParticleSystem(2000, 500, 8, confettiColors, 0.001); 
+            
+            scene.add(confetti1);
+            scene.add(confetti2);
+            scene.add(confetti3);
+
+            // --- Animation Loop with Parallax ---
+            let mouseX = 0, mouseY = 0;
+            const windowHalfX = window.innerWidth / 2;
+            const windowHalfY = window.innerHeight / 2;
+
+            function onMouseMove(event) {
+                mouseX = (event.clientX - windowHalfX);
+                mouseY = (event.clientY - windowHalfY);
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // Parallax: Different layers move at different speeds
+                camera.position.x += (mouseX * 0.001 - camera.position.x) * 0.05;
+                camera.position.y += (-mouseY * 0.001 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+
+                confetti1.position.x += (mouseX * confetti1.speed);
+                confetti1.position.y += (-mouseY * confetti1.speed);
+
+                confetti2.position.x += (mouseX * confetti2.speed);
+                confetti2.position.y += (-mouseY * confetti2.speed);
+
+                confetti3.position.x += (mouseX * confetti3.speed);
+                confetti3.position.y += (-mouseY * confetti3.speed);
+                confetti3.rotation.y += confetti3.speed * 10;
+                confetti3.rotation.x += confetti3.speed * 5;
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Handle window resizing
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // --- Dynamic Text Generation ---
+            async function getDynamicMessage() {
+                const prompt = "Generate a short, excited, and celebratory message for a prize winner. Do not repeat previous messages.";
+                const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                let retries = 0;
+                const maxRetries = 5;
+                let delay = 1000;
+
+                while (retries < maxRetries) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            if (response.status === 429) { // Too many requests
+                                throw new Error('API rate limit exceeded');
+                            }
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            return result.candidates[0].content.parts[0].text;
+                        } else {
+                            console.error('Unexpected API response structure:', result);
+                            return "A huge congratulations on your well-deserved victory!";
+                        }
+                    } catch (error) {
+                        console.error('API call failed:', error);
+                        retries++;
+                        if (retries < maxRetries) {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2; // Exponential backoff
+                        } else {
+                            return "A huge congratulations on your well-deserved victory!"; // Fallback message
+                        }
+                    }
+                }
+            }
+
+            async function updateMessage() {
+                const dynamicMessageElement = document.getElementById('dynamic-message');
+                dynamicMessageElement.textContent = "Generating your message of triumph...";
+                const newMessage = await getDynamicMessage();
+                gsap.to(dynamicMessageElement, {
+                    opacity: 0,
+                    duration: 0.5,
+                    onComplete: () => {
+                        dynamicMessageElement.textContent = newMessage;
+                        gsap.to(dynamicMessageElement, { opacity: 1, duration: 0.5 });
+                    }
+                });
+            }
+
+            updateMessage();
+            setInterval(updateMessage, 15000); // Update message every 15 seconds
+
+            // --- GSAP UI Animation ---
+            gsap.fromTo('.ui-container',
+                { opacity: 0, y: 50, rotateX: 10 },
+                { opacity: 1, y: 0, rotateX: 0, duration: 2.5, ease: 'power3.out' }
+            );
+
+            // --- UI Interactions ---
+            const messageBox1 = document.getElementById('message-box-1');
+            const messageBox2 = document.getElementById('message-box-2');
+            const messageBox3 = document.getElementById('message-box-3');
+
+            function showMessageBox(messageBox) {
+                gsap.fromTo(messageBox,
+                    { opacity: 0, scale: 0.9, y: 20 },
+                    { opacity: 1, scale: 1, y: 0, duration: 0.5, visibility: 'visible', ease: 'back.out(1.7)' }
+                );
+                gsap.to(messageBox, {
+                    opacity: 0,
+                    scale: 0.9,
+                    y: 20,
+                    duration: 0.5,
+                    delay: 4,
+                    onComplete: () => {
+                        messageBox.style.visibility = 'hidden';
+                    }
+                });
+            }
+
+            document.getElementById('call-to-action').addEventListener('click', (event) => {
+                event.preventDefault();
+                showMessageBox(messageBox1);
+            });
+
+            document.getElementById('eternal-vows').addEventListener('click', (event) => {
+                event.preventDefault();
+                showMessageBox(messageBox2);
+            });
+
+            document.getElementById('our-journey').addEventListener('click', (event) => {
+                event.preventDefault();
+                showMessageBox(messageBox3);
+            });
+
+            document.addEventListener('mousemove', onMouseMove, false);
+        };
+    </script>
+</body>
+</html>
